@@ -358,54 +358,151 @@ const MODULI = [
 const SEGNALI = [
   {nome:"Urgenza artificiale",peso:18,
    spiega:"Il messaggio impone una scadenza per impedirti di verificare. Le comunicazioni autentiche non funzionano così.",
-   pattern:/\b(urgent[ei]|urgentemente|imm?ediatamente|entro (?:\d+) ore|entro oggi|entro domani|al più presto|scade|scadenza|ultim[ao] (?:possibilità|avviso|giorno|ora)|tempestivamente|posti limitati|aff?rett(?:ati|atevi)|sbrigati|veloce|in fretta|solo per oggi|non perdere|approfitta|subito|adesso|ora o mai)\b/gi},
+   parole:["urgente","urgenti","urgentemente","immediatamente","subito","affrettati","affrettatevi","sbrigati","sbrigatevi","veloce","velocemente","fretta","scade","scadenza","scaduto","tempestivamente","approfitta","approfittane"],
+   frasi:["entro oggi","entro domani","entro 24 ore","entro 48 ore","al piu presto","ultima possibilita","ultimo avviso","ultimo giorno","posti limitati","solo per oggi","non perdere","ora o mai","tempo limitato"]},
+
   {nome:"Richiesta di credenziali",peso:26,
    spiega:"Nessun ente legittimo chiede password, OTP, PIN o codici di accesso via messaggio. È la richiesta più grave in assoluto.",
-   pattern:/\b(password|otp|codice (?:di )?(?:accesso|sicurezza|verifica|temporaneo)|pin|credenzial[ie]|spid|codice a 6 cifre)\b/gi},
+   parole:["password","otp","pin","credenziali","spid","username"],
+   frasi:["codice di accesso","codice di sicurezza","codice di verifica","codice temporaneo","codice segreto","dati di accesso","codice a 6 cifre"]},
+
   {nome:"Minaccia o conseguenza negativa",peso:20,
    spiega:"La paura di perdere l'accesso o subire una sanzione spinge ad agire senza ragionare. È la leva più usata in assoluto.",
-   pattern:/\b(sospes[oa]|sospensione|blocc(?:at[oa]|o|heremo)|disattivat[oa]|limitazione|sanzione|multa|denuncia|verrà (?:chiuso|sospeso)|accesso sospetto|attività sospetta|irregolarità)\b/gi},
+   parole:["sospeso","sospesa","sospensione","sospendere","bloccato","bloccata","bloccheremo","blocco","disattivato","disattivata","disattiveremo","limitazione","sanzione","multa","denuncia","irregolarita","chiusura","penale","addebito"],
+   frasi:["accesso sospetto","attivita sospetta","verra chiuso","verra sospeso","sara bloccato","perdera l accesso"]},
+
   {nome:"Richiesta di denaro o dati bancari",peso:24,
    spiega:"Dati di pagamento richiesti dentro un messaggio non sollecitato sono il fine ultimo della truffa.",
-   pattern:/\b(iban|bonifico|carta di credito|numero della carta|cvv|coordinate bancarie|pagament[oi]|paga(?:re)?|ricarica|commissione|spese di spedizione|rimborso|accredito)\b/gi},
+   parole:["iban","bonifico","cvv","pagamento","pagare","paga","ricarica","ricaricare","commissione","rimborso","accredito","versamento","versare"],
+   frasi:["carta di credito","numero della carta","coordinate bancarie","spese di spedizione","dati della carta","metodo di pagamento"]},
+
   {nome:"Marchio noto imitato",peso:14,
    spiega:"I marchi più riconoscibili sono i più imitati, perché generano fiducia immediata. Verifica sempre sul canale ufficiale.",
-   pattern:/\b(poste italiane|poste|bancoposta|agenzia delle entrate|inps|intesa|unicredit|nexi|postepay|amazon|dhl|brt|gls|netflix|paypal)\b/gi},
+   parole:["poste","bancoposta","postepay","inps","intesa","unicredit","nexi","amazon","dhl","brt","gls","netflix","paypal","spid","inail","enel"],
+   frasi:["poste italiane","agenzia delle entrate","banca intesa","poste info"]},
+
   {nome:"Link sospetto",peso:22,
    spiega:"Domini abbreviati, con trattini o con estensioni insolite servono a nascondere la vera destinazione del collegamento.",
-   pattern:/(https?:\/\/\S+|www\.\S+|bit\.ly\/\S*|tinyurl\S*|\b[a-z0-9-]+\.(?:xyz|top|icu|click|online|info|ru|tk|cc|link|shop)\b|\b[a-z]+-[a-z]+-?[a-z]*\.(?:com|net|org|it)\b)/gi},
+   parole:["link","url"],
+   frasi:[],
+   regex:/(https?:\/\/\S+|www\.\S+|bit\.ly\/\S*|tinyurl\S*|\b[a-z0-9-]+\.(?:xyz|top|icu|click|online|info|ru|tk|cc|link|shop)\b|\b[a-z]+-[a-z]+-?[a-z]*\.(?:com|net|org|it)\b)/gi},
+
   {nome:"Premio o guadagno improvviso",peso:20,
    spiega:"Vincite non richieste e guadagni facili sfruttano l'entusiasmo per abbassare le difese. Nessuno regala denaro a sconosciuti.",
-   pattern:/\b(hai vinto|vinc(?:ere|erai|ita|itore|ente|enti|i)|congratulazioni|premio|regalo|omaggio|gratis|gratuit[oa]|selezionat[oa]|fortunat[oa]|guadagn(?:o|i|are|ato|erai)|profitt[oi]|opportunità unica|investimento sicuro|rendimento garantito|garantit[oa]|\d{2,}\s*(?:euro|€|\$)|buono da)\b/gi},
+   parole:["vinto","vincere","vincita","vincitore","vincente","vinci","vincerai","congratulazioni","premio","regalo","omaggio","gratis","gratuito","gratuita","selezionato","selezionata","fortunato","fortunata","guadagno","guadagni","guadagnare","guadagnerai","profitto","estrazione"],
+   frasi:["opportunita unica","investimento sicuro","rendimento garantito","guadagno garantito","soldi facili"],
+   regex:/\b\d{2,}\s*(?:euro|€|\$|eur)\b/gi},
+
   {nome:"Pressione a non verificare",peso:16,
-   spiega:"Chi ti chiede di non parlarne o di rispondere solo lì sta cercando di isolarti da qualsiasi controllo esterno.",
-   pattern:/\b(non condivider[ea]|non dirlo a nessuno|riservat[oa]|rispondi (?:solo )?a questo (?:numero|messaggio)|clicc(?:a|are|ando)(?: qui| sul link| su questo link)?|iscriv(?:iti|erti|i)(?: (?:su|a|tramite) (?:questo )?link)?|(?:questo|il|al|sul) link|apri il link|segui il link|registrati (?:qui|subito)|completa il pagamento|conferma (?:i tuoi )?dati|verific[ahi](?: i| il)? (?:tuoi |tuo )?(?:dati|account))\b/gi}
+   spiega:"Chi ti chiede di cliccare senza pensare, di non parlarne o di rispondere solo lì sta cercando di isolarti da qualsiasi controllo esterno.",
+   parole:["clicca","cliccare","cliccando","iscriviti","iscrivi","iscriverti","registrati","riservato","riservata","confidenziale"],
+   frasi:["non condividere","non dirlo a nessuno","rispondi a questo numero","rispondi a questo messaggio","completa il pagamento","conferma i dati","conferma i tuoi dati","verifica i dati","verifica i tuoi dati","verifica il tuo account","apri il link","segui il link","clicca qui","clicca sul link"]}
 ];
 
 const ESEMPI = [
   {label:"SMS bancario", txt:"Gentile Cliente, abbiamo rilevato un accesso sospetto al suo conto. Il servizio verrà sospeso entro 24 ore. Verifica i tuoi dati urgentemente su http://intesa-verifica-clienti.top/login"},
   {label:"Finto corriere", txt:"BRT: il tuo pacco è fermo in magazzino per spese di spedizione non pagate di 2,99 euro. Completa il pagamento entro oggi: bit.ly/brt-pagamento"},
   {label:"Offerta di lavoro", txt:"Ciao! Selezioniamo persone per lavoro da casa, guadagno garantito 300 euro al giorno. Serve solo IBAN e documento. Non dirlo a nessuno, posti limitati. Rispondi solo a questo numero."},
+  {label:"Con errori di battitura", txt:"stai per vincere 500 euro solo se ti iscriv su queswto link . afrettati suito"},
   {label:"Messaggio normale", txt:"Ciao Giulia, ti confermo l'appuntamento di giovedì alle 15 in segreteria per la consegna dei moduli. Se non riesci fammi sapere. Buona giornata!"}
 ];
 
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-function analizza(testo){
-  const trovati=[];const intervalli=[];
-  SEGNALI.forEach(sig=>{
-    sig.pattern.lastIndex=0;
-    let m;const occ=[];
-    while((m=sig.pattern.exec(testo))!==null){
-      if(!m[0]){sig.pattern.lastIndex++;continue;}
-      occ.push(m[0]);
-      intervalli.push({start:m.index,end:m.index+m[0].length});
+/* --- normalizzazione: minuscole, via accenti, lettere doppie ridotte --- */
+function norm(s){
+  return s.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/k/g,"c").replace(/y/g,"i").replace(/w/g,"v")
+    .replace(/[^a-z0-9]/g,"")
+    .replace(/(.)\1+/g,"$1");
+}
+
+/* --- distanza di Levenshtein: quante modifiche servono per passare da a a b --- */
+function lev(a,b){
+  if(a===b)return 0;
+  if(Math.abs(a.length-b.length)>2)return 99;
+  const m=a.length,n=b.length;
+  let prev=Array.from({length:n+1},(_,i)=>i),cur=new Array(n+1);
+  for(let i=1;i<=m;i++){
+    cur[0]=i;
+    for(let j=1;j<=n;j++){
+      cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
     }
+    [prev,cur]=[cur,prev];
+  }
+  return prev[n];
+}
+
+/* quanto errore tolleriamo in base alla lunghezza della parola */
+function tolleranza(len){ return len<=5?0 : len<=11?1 : 2; }
+
+function simile(tok,key){
+  if(tok===key)return true;
+  if(tok[0]!==key[0])return false;   // evita scambi tra parole diverse (accesso/adesso)
+  if(key.length>=5 && tok.startsWith(key))return true;   // iscriv → iscrivi/iscriverti
+  if(tok.length>=5 && key.startsWith(tok))return true;   // iscriv scritto tronco
+  return lev(tok,key)<=tolleranza(key.length);
+}
+
+/* spezza il testo in parole conservando la posizione originale */
+function tokenizza(testo){
+  const out=[];const re=/[\p{L}\p{N}][\p{L}\p{N}'’]*/gu;let m;
+  while((m=re.exec(testo))!==null){
+    out.push({raw:m[0],n:norm(m[0]),start:m.index,end:m.index+m[0].length});
+  }
+  return out;
+}
+
+function analizza(testo){
+  const tok=tokenizza(testo);
+  const trovati=[];const intervalli=[];
+
+  SEGNALI.forEach(sig=>{
+    const occ=[];
+    const paroleN=(sig.parole||[]).map(norm);
+    const frasiN=(sig.frasi||[]).map(f=>f.split(/\s+/).map(norm));
+
+    // parole singole
+    tok.forEach(t=>{
+      if(t.n.length<3)return;
+      if(paroleN.some(k=>simile(t.n,k))){
+        occ.push(t.raw);
+        intervalli.push({start:t.start,end:t.end});
+      }
+    });
+
+    // frasi di più parole
+    frasiN.forEach(fr=>{
+      for(let i=0;i+fr.length<=tok.length;i++){
+        let ok=true;
+        for(let j=0;j<fr.length;j++){
+          if(!simile(tok[i+j].n,fr[j])){ok=false;break;}
+        }
+        if(ok){
+          occ.push(testo.slice(tok[i].start,tok[i+fr.length-1].end));
+          intervalli.push({start:tok[i].start,end:tok[i+fr.length-1].end});
+        }
+      }
+    });
+
+    // pattern speciali (link, importi)
+    if(sig.regex){
+      sig.regex.lastIndex=0;let m;
+      while((m=sig.regex.exec(testo))!==null){
+        if(!m[0]){sig.regex.lastIndex++;continue;}
+        occ.push(m[0]);
+        intervalli.push({start:m.index,end:m.index+m[0].length});
+      }
+    }
+
     if(occ.length)trovati.push({nome:sig.nome,peso:sig.peso,spiega:sig.spiega,occorrenze:[...new Set(occ)]});
   });
+
   let punteggio=0;
   trovati.sort((a,b)=>b.peso-a.peso).forEach((s,i)=>{punteggio+=s.peso*(i===0?1:0.72);});
   punteggio=Math.min(100,Math.round(punteggio));
+
   intervalli.sort((a,b)=>a.start-b.start);
   const merge=[];
   intervalli.forEach(iv=>{
