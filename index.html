@@ -358,7 +358,7 @@ const MODULI = [
 const SEGNALI = [
   {nome:"Urgenza artificiale",peso:18,
    spiega:"Il messaggio impone una scadenza per impedirti di verificare. Le comunicazioni autentiche non funzionano così.",
-   pattern:/\b(urgent[ei]|urgentemente|immediatamente|entro (?:\d+) ore|entro oggi|entro domani|al più presto|scade|scadenza|ultim[ao] (?:possibilità|avviso|giorno|ora)|tempestivamente|posti limitati|affrettati|sbrigati|veloce|in fretta|solo per oggi|non perdere|approfitta|subito|adesso|ora o mai)\b/gi},
+   pattern:/\b(urgent[ei]|urgentemente|imm?ediatamente|entro (?:\d+) ore|entro oggi|entro domani|al più presto|scade|scadenza|ultim[ao] (?:possibilità|avviso|giorno|ora)|tempestivamente|posti limitati|aff?rett(?:ati|atevi)|sbrigati|veloce|in fretta|solo per oggi|non perdere|approfitta|subito|adesso|ora o mai)\b/gi},
   {nome:"Richiesta di credenziali",peso:26,
    spiega:"Nessun ente legittimo chiede password, OTP, PIN o codici di accesso via messaggio. È la richiesta più grave in assoluto.",
    pattern:/\b(password|otp|codice (?:di )?(?:accesso|sicurezza|verifica|temporaneo)|pin|credenzial[ie]|spid|codice a 6 cifre)\b/gi},
@@ -376,7 +376,7 @@ const SEGNALI = [
    pattern:/(https?:\/\/\S+|www\.\S+|bit\.ly\/\S*|tinyurl\S*|\b[a-z0-9-]+\.(?:xyz|top|icu|click|online|info|ru|tk|cc|link|shop)\b|\b[a-z]+-[a-z]+-?[a-z]*\.(?:com|net|org|it)\b)/gi},
   {nome:"Premio o guadagno improvviso",peso:20,
    spiega:"Vincite non richieste e guadagni facili sfruttano l'entusiasmo per abbassare le difese. Nessuno regala denaro a sconosciuti.",
-   pattern:/\b(hai vinto|vinc(?:ere|erai|ita|itore|i)|congratulazioni|premio|regalo|omaggio|gratis|gratuit[oa]|selezionat[oa]|fortunat[oa]|guadagn(?:o|i|are|ato|erai)|profitt[oi]|opportunità unica|investimento sicuro|rendimento garantito|garantit[oa]|\d{2,}\s*(?:euro|€|\$)|buono da)\b/gi},
+   pattern:/\b(hai vinto|vinc(?:ere|erai|ita|itore|ente|enti|i)|congratulazioni|premio|regalo|omaggio|gratis|gratuit[oa]|selezionat[oa]|fortunat[oa]|guadagn(?:o|i|are|ato|erai)|profitt[oi]|opportunità unica|investimento sicuro|rendimento garantito|garantit[oa]|\d{2,}\s*(?:euro|€|\$)|buono da)\b/gi},
   {nome:"Pressione a non verificare",peso:16,
    spiega:"Chi ti chiede di non parlarne o di rispondere solo lì sta cercando di isolarti da qualsiasi controllo esterno.",
    pattern:/\b(non condivider[ea]|non dirlo a nessuno|riservat[oa]|rispondi (?:solo )?a questo (?:numero|messaggio)|clicc(?:a|are|ando)(?: qui| sul link| su questo link)?|iscriv(?:iti|erti|i)(?: (?:su|a|tramite) (?:questo )?link)?|(?:questo|il|al|sul) link|apri il link|segui il link|registrati (?:qui|subito)|completa il pagamento|conferma (?:i tuoi )?dati|verific[ahi](?: i| il)? (?:tuoi |tuo )?(?:dati|account))\b/gi}
