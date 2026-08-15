@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel AI — Difesa digitale per chi non è un esperto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A1322;--ink-2:#131F33;--paper:#E9ECF1;--white:#FFFFFF;
+  --slate:#5A6B84;--slate-l:#93A2B8;--signal:#FFB627;--alert:#FF5A47;--safe:#12A97C;
+  --line:rgba(10,19,34,.13);--line-d:rgba(255,255,255,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.13em;font-size:.68rem;font-weight:500}
+.inner{max-width:1140px;margin:0 auto;padding:0 1.5rem}
+
+.topbar{position:sticky;top:0;z-index:50;background:rgba(10,19,34,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-d);color:#fff}
+.topbar .inner{display:flex;align-items:center;justify-content:space-between;height:58px;gap:1rem}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:600;letter-spacing:-.01em}
+.logo .mark{width:22px;height:22px;flex:none;background:var(--signal);clip-path:polygon(50% 0,100% 22%,100% 60%,50% 100%,0 60%,0 22%)}
+.topnav{display:flex;gap:.3rem}
+.topnav a{color:var(--slate-l);text-decoration:none;padding:.4rem .7rem;border-radius:4px;font-size:.85rem;transition:color .15s,background .15s}
+.topnav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+@media(max-width:720px){.topnav{display:none}}
+
+.hero{background:var(--ink);color:#fff;padding:3.5rem 0 4rem}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:2.2rem}}
+.tag{display:inline-flex;align-items:center;gap:.55rem;color:var(--signal);margin-bottom:1.3rem}
+.tag .pulse{width:8px;height:8px;border-radius:50%;background:var(--signal);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2.2rem,5.4vw,3.7rem);line-height:1.02;letter-spacing:-.035em}
+h1 em{font-style:normal;color:var(--signal)}
+.hero p.lead{color:var(--slate-l);margin-top:1.2rem;font-size:1.05rem;max-width:46ch}
+.hero-stats{display:flex;gap:2rem;margin-top:2.2rem;flex-wrap:wrap}
+.stat strong{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:1.9rem;font-weight:600;letter-spacing:-.03em;line-height:1}
+.stat span{color:var(--slate-l);font-size:.82rem}
+
+.analyzer{background:var(--ink-2);border:1px solid var(--line-d);border-radius:6px;overflow:hidden}
+.an-head{padding:1rem 1.3rem;border-bottom:1px solid var(--line-d);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.an-head .mono{color:var(--slate-l)}
+.an-body{padding:1.3rem}
+textarea{width:100%;min-height:120px;resize:vertical;background:var(--ink);color:#fff;border:1px solid var(--line-d);border-radius:4px;padding:.9rem 1rem;font:inherit;font-size:.95rem;line-height:1.55}
+textarea::placeholder{color:#5A6B84}
+textarea:focus{outline:2px solid var(--signal);outline-offset:1px}
+.samples{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.8rem}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.06em;background:rgba(255,255,255,.07);border:1px solid var(--line-d);color:var(--slate-l);padding:.4rem .7rem;border-radius:20px;cursor:pointer;transition:all .15s}
+.chip:hover{color:#fff;border-color:var(--signal)}
+.chip:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+.verdict{margin-top:1.3rem;display:none}
+.verdict.show{display:block;animation:rise .35s ease}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.gauge{display:flex;align-items:center;gap:1rem;margin-bottom:1.1rem}
+.gauge-ring{width:76px;height:76px;flex:none;border-radius:50%;display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.4rem;color:#fff}
+.gauge-label strong{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.gauge-label span{color:var(--slate-l);font-size:.88rem}
+.msg-render{background:var(--ink);border:1px solid var(--line-d);border-radius:4px;padding:1rem;font-size:.92rem;line-height:1.75;color:#CFD8E5;margin-bottom:1.1rem;white-space:pre-wrap;word-break:break-word}
+mark{background:rgba(255,90,71,.28);color:#FFD9D3;padding:.08em .28em;border-radius:3px;border-bottom:2px solid var(--alert)}
+.signals{display:grid;gap:.55rem}
+.sig{display:flex;gap:.75rem;align-items:flex-start;background:rgba(255,255,255,.05);border-left:3px solid var(--alert);padding:.7rem .9rem;border-radius:0 4px 4px 0}
+.sig .sig-name{color:#fff;font-weight:600;font-size:.86rem;display:block;margin-bottom:.1rem}
+.sig .sig-txt{color:var(--slate-l);font-size:.86rem;line-height:1.5}
+.sig.clean{border-left-color:var(--safe)}
+.advice{margin-top:1.1rem;padding:.95rem 1.1rem;background:rgba(255,182,39,.1);border:1px solid rgba(255,182,39,.3);border-radius:4px;color:#F5E3C0;font-size:.9rem}
+
+section{padding:4.5rem 0}
+.sec-head{margin-bottom:2.5rem;max-width:62ch}
+.sec-head .mono{color:var(--slate);margin-bottom:.8rem;display:block}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(1.7rem,4.2vw,2.6rem);letter-spacing:-.03em;line-height:1.08}
+.sec-head p{color:var(--slate);margin-top:.9rem}
+
+.course{display:grid;grid-template-columns:270px 1fr;gap:2.5rem;align-items:start}
+@media(max-width:880px){.course{grid-template-columns:1fr;gap:1.5rem}}
+.progress-card{background:var(--ink);color:#fff;border-radius:6px;padding:1.3rem;margin-bottom:1.6rem}
+.progress-card .mono{color:var(--slate-l)}
+.bars{display:flex;gap:4px;margin:.8rem 0 .6rem}
+.bar{height:28px;flex:1;background:rgba(255,255,255,.1);border-bottom:2px solid rgba(255,255,255,.22);transition:all .45s}
+.bar.on{background:var(--signal);border-bottom-color:#fff}
+.progress-card strong{font-family:'Bricolage Grotesque',sans-serif;font-size:1.15rem;font-weight:600}
+.level{margin-bottom:1.4rem}
+.level-label{color:var(--slate);padding-bottom:.45rem;margin-bottom:.5rem;border-bottom:1px solid var(--line);display:block}
+.navbtn{display:flex;gap:.8rem;align-items:baseline;width:100%;text-align:left;background:none;border:none;cursor:pointer;font:inherit;color:var(--ink);padding:.68rem .7rem;border-radius:5px;line-height:1.35;transition:background .16s}
+.navbtn:hover{background:rgba(10,19,34,.06)}
+.navbtn.active{background:var(--ink);color:#fff}
+.navbtn .num{font-family:'IBM Plex Mono',monospace;font-size:.76rem;color:var(--slate);flex:none}
+.navbtn.active .num{color:var(--signal)}
+.navbtn.done .num::after{content:" ✓";color:var(--safe)}
+.navbtn.active.done .num::after{color:var(--signal)}
+.navbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+.card{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:2.2rem}
+@media(max-width:520px){.card{padding:1.4rem}}
+.card .eyebrow{color:var(--slate);margin-bottom:.7rem;display:block}
+h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:1.15rem;letter-spacing:-.015em;margin-bottom:.9rem}
+.card h3.big{font-size:clamp(1.5rem,3.6vw,2.1rem);margin-bottom:1.3rem;letter-spacing:-.025em;line-height:1.12}
+.lesson p{margin-bottom:1rem;max-width:68ch}
+.lesson p:last-child{margin-bottom:0}
+.block{margin-top:1.9rem;padding-top:1.4rem;border-top:1px solid var(--line)}
+ul{list-style:none}
+.block li{padding-left:1.5rem;position:relative;margin-bottom:.6rem;max-width:64ch}
+.examples li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:8px;background:var(--alert)}
+.tips li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--safe);border-radius:50%}
+
+.quiz{margin-top:1.6rem;background:var(--ink);color:#fff;border-radius:6px;padding:2rem}
+@media(max-width:520px){.quiz{padding:1.3rem}}
+.quiz h3{color:#fff}
+.quiz .eyebrow{color:var(--signal);display:block;margin-bottom:.5rem}
+.qcount{color:var(--slate-l);margin-bottom:1.3rem}
+.question{font-size:1.06rem;font-weight:500;margin-bottom:1.1rem;max-width:60ch}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:#fff;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid var(--line-d);border-radius:4px;padding:.82rem 1rem;margin-bottom:.55rem;transition:background .16s,border-color .16s}
+.opt:hover:not(:disabled){background:rgba(255,255,255,.13)}
+.opt:disabled{cursor:default}
+.opt.right{background:rgba(18,169,124,.26);border-color:var(--safe)}
+.opt.wrong{background:rgba(255,90,71,.22);border-color:var(--alert)}
+.opt:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.feedback{margin-top:1rem;padding:.95rem 1.15rem;border-left:3px solid var(--signal);background:rgba(255,255,255,.07);color:#D5DEEA;max-width:62ch}
+.feedback strong{color:#fff;display:block;margin-bottom:.22rem}
+.score{font-family:'Bricolage Grotesque',sans-serif;font-size:2.6rem;font-weight:800;letter-spacing:-.03em;color:var(--signal);line-height:1;margin-bottom:.45rem}
+
+.btn{font:inherit;font-weight:600;cursor:pointer;border:none;border-radius:4px;padding:.78rem 1.4rem;background:var(--signal);color:var(--ink);transition:filter .16s,transform .12s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.btn.ghost{background:none;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.row{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.3rem}
+
+.cert{margin-top:1.6rem;background:var(--white);border:2px solid var(--ink);border-radius:6px;padding:2.5rem;text-align:center;display:none}
+.cert.show{display:block;animation:rise .4s ease}
+.cert .seal{width:66px;height:66px;margin:0 auto 1.1rem;background:var(--signal);border-radius:50%;display:grid;place-items:center;font-size:1.8rem}
+.cert h3{font-size:1.6rem;margin-bottom:.35rem}
+.cert p{color:var(--slate);max-width:44ch;margin:0 auto}
+
+.vision{background:var(--ink);color:#fff}
+.vision .sec-head .mono{color:var(--signal)}
+.vision .sec-head p{color:var(--slate-l)}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line-d);border:1px solid var(--line-d);border-radius:6px;overflow:hidden}
+.vcell{background:var(--ink);padding:1.7rem}
+.vcell .mono{color:var(--signal);display:block;margin-bottom:.8rem}
+.vcell h3{color:#fff;margin-bottom:.6rem}
+.vcell p{color:var(--slate-l);font-size:.93rem}
+.timeline{margin-top:3rem}
+.tstep{display:grid;grid-template-columns:120px 1fr;gap:1.5rem;padding:1.4rem 0;border-top:1px solid var(--line-d)}
+@media(max-width:640px){.tstep{grid-template-columns:1fr;gap:.4rem}}
+.tstep .when{color:var(--signal);font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.08em;padding-top:.2rem}
+.tstep h3{color:#fff;margin-bottom:.35rem;font-size:1.05rem}
+.tstep p{color:var(--slate-l);font-size:.93rem;max-width:60ch}
+
+footer{background:var(--ink);color:var(--slate-l);border-top:1px solid var(--line-d);padding:2.2rem 0;text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="inner">
+    <div class="logo"><span class="mark"></span>Sentinel AI</div>
+    <nav class="topnav">
+      <a href="#analizza">Analizza</a>
+      <a href="#percorso">Percorso</a>
+      <a href="#visione">Visione</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero" id="analizza">
+  <div class="inner hero-grid">
+    <div>
+      <div class="tag mono"><span class="pulse"></span>Analisi in tempo reale · nessun dato inviato</div>
+      <h1>Il messaggio che ti sta truffando <em>sembra normale.</em></h1>
+      <p class="lead">Incolla un SMS, un'email o un messaggio sospetto. Sentinel evidenzia i segnali di manipolazione e ti spiega perché sono pericolosi — così la prossima volta li riconosci da sola.</p>
+      <div class="hero-stats">
+        <div class="stat"><strong>6</strong><span>moduli formativi</span></div>
+        <div class="stat"><strong>30</strong><span>domande di verifica</span></div>
+        <div class="stat"><strong>8</strong><span>segnali analizzati</span></div>
+      </div>
+    </div>
+
+    <div class="analyzer">
+      <div class="an-head">
+        <span class="mono">Analizzatore messaggi</span>
+        <span class="mono" id="engineState">In attesa</span>
+      </div>
+      <div class="an-body">
+        <label for="msg" class="mono" style="color:var(--slate-l);display:block;margin-bottom:.55rem">Testo da analizzare</label>
+        <textarea id="msg" placeholder="Es. «Gentile cliente, il suo conto è stato temporaneamente sospeso. Verifichi i suoi dati entro 24 ore su questo link…»"></textarea>
+        <div class="samples" id="samples"></div>
+        <div class="row"><button class="btn" id="run">Analizza messaggio</button></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="percorso">
+  <div class="inner">
+    <div class="sec-head">
+      <span class="mono">Percorso formativo</span>
+      <h2>Riconoscere un attacco è una competenza, non un talento.</h2>
+      <p>Sei moduli progressivi dal livello base a quello avanzato. Ogni modulo si chiude con una verifica che spiega il ragionamento dietro ogni risposta, non solo il risultato.</p>
+    </div>
+
+    <div class="course">
+      <div>
+        <div class="progress-card">
+          <span class="mono">Livello di difesa</span>
+          <div class="bars" id="bars" aria-hidden="true"></div>
+          <strong id="meterText">0 di 6 moduli</strong>
+        </div>
+        <nav id="nav" aria-label="Moduli del percorso"></nav>
+      </div>
+
+      <main>
+        <article class="card">
+          <span class="eyebrow mono" id="eyebrow"></span>
+          <h3 class="big" id="title"></h3>
+          <div class="lesson" id="lesson"></div>
+          <div class="block">
+            <h3>Casi reali in Italia</h3>
+            <ul class="examples" id="examples"></ul>
+          </div>
+          <div class="block">
+            <h3>Cosa fare, in pratica</h3>
+            <ul class="tips" id="tips"></ul>
+          </div>
+        </article>
+
+        <section class="quiz" id="quiz" aria-live="polite"></section>
+
+        <div class="cert" id="cert">
+          <div class="seal">✓</div>
+          <h3>Sentinel Certified</h3>
+          <p>Percorso completato: tutti e sei i moduli di difesa digitale superati.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<section class="vision" id="visione">
+  <div class="inner">
+    <div class="sec-head">
+      <span class="mono">Oltre il progetto</span>
+      <h2>Il punto debole della sicurezza informatica non è il software. Sono le persone.</h2>
+      <p>Le aziende investono in firewall e antivirus, ma gran parte degli incidenti inizia con una persona che clicca. La formazione esiste — ed è generica, noiosa e pensata per chi lavora già nell'IT. Sentinel nasce per chi non ci lavora affatto.</p>
+    </div>
+
+    <div class="vgrid">
+      <div class="vcell"><span class="mono">Il problema</span><h3>Si insegna la teoria, non il riflesso</h3><p>I corsi spiegano cos'è il phishing. Non allenano a riconoscerlo in tre secondi su uno schermo, che è il momento in cui la difesa serve davvero.</p></div>
+      <div class="vcell"><span class="mono">La soluzione</span><h3>Analisi e formazione insieme</h3><p>Ogni messaggio analizzato diventa una lezione: il sistema non dà solo un verdetto, mostra quali segnali l'hanno prodotto e perché funzionano sulle persone.</p></div>
+      <div class="vcell"><span class="mono">Il mercato</span><h3>Scuole, PMI, famiglie</h3><p>Le scuole devono formare gli studenti al digitale. Le PMI europee sono spinte dalla normativa NIS2 ad alzare la consapevolezza interna. Nessuno dei due ha strumenti pensati per i non tecnici.</p></div>
+      <div class="vcell"><span class="mono">Il modello</span><h3>Gratis per studenti, a licenza per le organizzazioni</h3><p>Il percorso individuale resta accessibile. Scuole e aziende pagano ciò che serve a loro: gestione delle classi, report di avanzamento, simulazioni interne, contenuti personalizzati.</p></div>
+      <div class="vcell"><span class="mono">La difendibilità</span><h3>I dati di chi sbaglia</h3><p>Ogni quiz e ogni analisi indicano dove le persone si fanno ingannare. Quel dato migliora i contenuti e non è replicabile da chi parte oggi.</p></div>
+      <div class="vcell"><span class="mono">La scala</span><h3>Il problema è identico ovunque</h3><p>Cambiano i marchi imitati, non i meccanismi psicologici. Portare la piattaforma in un altro paese è un lavoro di contenuti, non di riprogettazione.</p></div>
+    </div>
+
+    <div class="timeline">
+      <div class="tstep"><div class="when">Oggi</div><div><h3>Piattaforma funzionante</h3><p>Analizzatore, sei moduli formativi, sistema di verifica e certificazione. Utilizzabile da chiunque, senza registrazione e senza installazione.</p></div></div>
+      <div class="tstep"><div class="when">Prossimi 6 mesi</div><div><h3>Prima sperimentazione in classe</h3><p>Test con studenti reali, dashboard per i docenti e raccolta dei dati su dove si sbaglia più spesso.</p></div></div>
+      <div class="tstep"><div class="when">12–18 mesi</div><div><h3>Versione per le imprese</h3><p>Percorsi per dipendenti, simulazioni di phishing interne e reportistica utile agli adempimenti NIS2.</p></div></div>
+      <div class="tstep"><div class="when">Oltre</div><div><h3>Espansione internazionale</h3><p>Localizzazione dei contenuti sui marchi e le truffe di ciascun paese, a partire dall'area europea.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="inner mono">Sentinel AI — educazione alla sicurezza digitale</div></footer>
+
+<script>
+const MODULI = [
+  {livello:"Base",titolo:"Cos'è la Cybersecurity",
+   lezione:["La cybersecurity è l'insieme delle pratiche che proteggono dispositivi, dati e identità digitali da chi vuole rubarli o danneggiarli. Non riguarda solo le grandi aziende o i governi: riguarda il tuo telefono, il tuo profilo social, il conto corrente dei tuoi genitori, le foto nel cloud.",
+     "Ogni volta che clicchi un link, inserisci una password o scarichi un'app, prendi una decisione di sicurezza — spesso senza accorgertene. I criminali informatici oggi non attaccano quasi mai i computer: attaccano le persone. Puntano sulla fretta, sulla paura e sulla curiosità, perché un essere umano distratto è molto più facile da ingannare di un sistema protetto.",
+     "Per questo la difesa più efficace non è un antivirus costoso, ma saper riconoscere i segnali di un tentativo di truffa."],
+   esempi:["SMS falsi che imitano Poste Italiane e chiedono di verificare l'account con un link","Email che fingono un rimborso dell'Agenzia delle Entrate e chiedono i dati della carta","Finti corrieri che segnalano un pacco bloccato e chiedono un piccolo pagamento"],
+   consigli:["Verifica sempre il mittente reale, non il nome visualizzato","Non cliccare link arrivati a sorpresa: apri tu l'app o il sito ufficiale","Attiva l'autenticazione a due fattori su email, banca e social"],
+   quiz:[
+    {q:"Qual è oggi il bersaglio principale della maggior parte degli attacchi informatici?",o:["I server delle grandi aziende","Le persone e le loro abitudini","I router di casa","I satelliti"],c:1,s:"Gli attacchi più diffusi non forzano i sistemi: convincono le persone. È molto più economico ingannare qualcuno che superare una protezione tecnica."},
+    {q:"Perché la fretta è pericolosa in un messaggio sospetto?",o:["Consuma batteria","Impedisce di ragionare prima di agire","Rallenta la connessione","Blocca l'antivirus"],c:1,s:"L'urgenza è una leva psicologica: chi attacca vuole che tu agisca d'impulso, prima di verificare. Fermarsi trenta secondi è già una difesa."},
+    {q:"La cybersecurity riguarda soprattutto:",o:["Solo le banche","Solo chi lavora nell'informatica","Chiunque usi un dispositivo connesso","Solo i governi"],c:2,s:"Chiunque abbia un telefono ha un'identità digitale da proteggere: account, foto, contatti, pagamenti."},
+    {q:"Qual è la difesa più efficace contro le truffe online?",o:["Un antivirus a pagamento","Saper riconoscere i segnali di un tentativo","Cambiare telefono spesso","Usare solo il Wi-Fi di casa"],c:1,s:"Nessun software può impedirti di consegnare volontariamente una password. La consapevolezza è il livello che manca più spesso."},
+    {q:"Un messaggio arriva dal «nome mittente» della tua banca. Cosa significa?",o:["Che è sicuramente autentico","Che il nome visualizzato può essere falsificato","Che il numero è verificato","Che l'antivirus l'ha controllato"],c:1,s:"Il nome visualizzato è facilmente falsificabile, sia via SMS che via email. Conta l'indirizzo o il numero reale, non l'etichetta."}]},
+
+  {livello:"Base",titolo:"Phishing e truffe online",
+   lezione:["Il phishing è il tentativo di farti consegnare volontariamente informazioni preziose — password, dati della carta, codici di accesso — fingendo di essere qualcuno di cui ti fidi. Il nome viene dall'inglese fishing, pescare: il criminale getta l'esca e aspetta che qualcuno abbocchi.",
+     "Il meccanismo sfrutta due leve: l'urgenza e la paura. «Il tuo account verrà bloccato entro 24 ore», «Abbiamo rilevato un accesso sospetto», «Il tuo pacco è fermo in dogana». L'obiettivo è farti agire d'impulso. Chi ragiona non abbocca.",
+     "Oggi il phishing non arriva solo via email: viaggia su SMS, WhatsApp, messaggi diretti e persino telefonate. E con l'intelligenza artificiale i testi sono diventati impeccabili: l'errore di grammatica, che una volta era il segnale più facile da notare, non c'è più.",
+     "Il punto chiave: nessuna banca, azienda o ente pubblico ti chiederà mai password o codici via messaggio."],
+   esempi:["SMS che sembrano della tua banca con un link per sbloccare il conto","Messaggi da un profilo amico hackerato che chiede di votarlo a un concorso","Finte offerte di lavoro su WhatsApp che chiedono documenti e IBAN"],
+   consigli:["Se un messaggio ti mette fretta o paura, fermati: è il segnale numero uno","Controlla il dominio del link: spesso è simile ma non uguale a quello vero","Nel dubbio contatta l'azienda dal numero ufficiale, mai da quello nel messaggio"],
+   quiz:[
+    {q:"Che cos'è il phishing?",o:["Un virus che cancella i file","Un inganno per farti consegnare tu stesso i dati","Un attacco che spegne la rete","Un tipo di password debole"],c:1,s:"Nel phishing non c'è nessuna intrusione tecnica: sei tu a inserire i dati, convinta di essere sul sito giusto."},
+    {q:"Come si chiama il phishing che arriva via SMS?",o:["Vishing","Smishing","Spoofing","Sniffing"],c:1,s:"Smishing viene da SMS + phishing. Il vishing è quello telefonico, tramite voce."},
+    {q:"Perché oggi è più difficile riconoscere un messaggio di phishing?",o:["Gli SMS non si vedono più","L'IA elimina errori di grammatica e traduzione","I telefoni non hanno filtri","Le banche non avvisano più"],c:1,s:"L'errore linguistico era il segnale più immediato. Ora bisogna guardare mittente, dominio e tipo di richiesta, non la forma."},
+    {q:"La tua banca ti scrive chiedendo il codice OTP per «bloccare una frode». Cosa fai?",o:["Lo invii subito, è urgente","Non lo comunichi e chiami il numero ufficiale","Lo invii solo se il numero è italiano","Rispondi chiedendo conferma via SMS"],c:1,s:"Nessuna banca chiede mai un OTP. Quel codice serve proprio ad autorizzare l'operazione che il truffatore sta tentando."},
+    {q:"Quale indirizzo è più probabilmente fraudolento?",o:["poste.it","poste-it-verifica.com","poste.it/area-personale","posteitaliane.it"],c:1,s:"Il dominio vero è quello prima della prima barra. Aggiunte come «-verifica» o domini diversi sono un segnale classico."}]},
+
+  {livello:"Intermedio",titolo:"Password e autenticazione sicura",
+   lezione:["La password è la chiave della tua vita digitale, ma quasi tutti la trattano come un fastidio da risolvere in fretta. Il risultato è che milioni di persone usano combinazioni banali e — cosa più pericolosa — riutilizzano la stessa password su decine di siti.",
+     "Il problema del riutilizzo è questo: quando un sito qualsiasi subisce una violazione, le password rubate finiscono in archivi che circolano online. I criminali le provano automaticamente su email, banche e social. Non devono indovinare nulla: hanno già la chiave, gliel'ha regalata un sito di cui ti eri dimenticata.",
+     "Una password sicura oggi è più lunga che complicata. Una frase come «PizzaMargherita-Milano-2010» è molto più difficile da violare di «P@ss1!» ed è infinitamente più facile da ricordare.",
+     "Ma la difesa più potente non è la password: è l'autenticazione a due fattori. Anche se qualcuno ruba la password, senza il secondo codice non entra."],
+   esempi:["Account social rubati e rivenduti perché protetti da una password riutilizzata","Email violate usate per resettare le password di tutti gli altri servizi","Password salvate nelle note del telefono o su fogli condivisi in famiglia"],
+   consigli:["Password lunghe e diverse per ogni servizio, meglio se frasi facili da ricordare","Attiva la 2FA almeno su email, banca e social: l'email è la più importante","Usa un gestore di password invece della memoria o dei fogliettini"],
+   quiz:[
+    {q:"Qual è il rischio maggiore nel riutilizzare la stessa password?",o:["Rallenta il login","Una sola violazione espone tutti gli account","Occupa memoria","Scade prima"],c:1,s:"È l'effetto domino: le credenziali rubate da un sito minore vengono provate automaticamente ovunque."},
+    {q:"Quale password è più robusta?",o:["Xk7!q","Password2024!","LunaDorme-Sul-Divano-19","Alice2006"],c:2,s:"La lunghezza conta più della complessità: aumenta enormemente le combinazioni possibili e resta memorizzabile."},
+    {q:"Che cos'è l'autenticazione a due fattori?",o:["Due password diverse","Un secondo elemento oltre alla password","Un antivirus doppio","Una password che cambia da sola"],c:1,s:"Unisce qualcosa che sai (password) a qualcosa che hai (telefono, app, chiave fisica). Blocca la maggior parte dei furti di credenziali."},
+    {q:"Qual è l'account più importante da proteggere per primo?",o:["Instagram","L'email principale","Spotify","Il sito della scuola"],c:1,s:"L'email è la chiave universale: con quella si resettano le password di quasi tutti gli altri servizi."},
+    {q:"Un gestore di password serve a:",o:["Rendere le password più corte","Generare e conservare password diverse per ogni sito","Condividerle con gli amici","Eliminare la necessità della 2FA"],c:1,s:"Risolve il problema pratico: password uniche e lunghe ovunque, senza doverle ricordare tutte."}]},
+
+  {livello:"Intermedio",titolo:"Social engineering",
+   lezione:["Il social engineering è l'arte di manipolare le persone per ottenere accesso a informazioni o sistemi. È la forma di attacco più efficace in assoluto, perché non prende di mira il software: prende di mira la fiducia. Non serve forzare una serratura se puoi convincere qualcuno ad aprirti la porta.",
+     "Chi attacca studia la vittima prima di colpire. Guarda i social, capisce dove lavora, chi sono i colleghi, che linguaggio usa l'azienda. Poi si presenta come qualcuno di credibile: un tecnico dell'assistenza, un collega di un'altra sede, un fornitore. Costruisce una storia coerente e sfrutta le leve umane più forti: autorità, urgenza, reciprocità e la paura di sembrare scortesi.",
+     "Le vittime non sono persone ingenue. Sono persone normali, spesso competenti, colte nel momento sbagliato: di fretta, distratte, sotto pressione. Per questo la difesa non è «essere furbi», ma avere una regola fissa da applicare sempre: verificare l'identità su un canale diverso."],
+   esempi:["Finte telefonate dell'assistenza bancaria che chiedono di confermare un'operazione","La truffa del finto nipote o del finto carabiniere rivolta agli anziani","Email che sembrano del capo e chiedono un bonifico urgente all'amministrazione"],
+   consigli:["Nessuna emergenza vera richiede che tu comunichi codici o dati in quel momento","Verifica su un canale diverso: richiama tu il numero ufficiale","Attenzione a quante informazioni personali pubblichi: sono materiale per l'attacco"],
+   quiz:[
+    {q:"Il social engineering attacca principalmente:",o:["Il sistema operativo","La fiducia delle persone","La connessione di rete","I file di backup"],c:1,s:"Sfrutta il comportamento umano, non una vulnerabilità tecnica. Per questo funziona anche in aziende molto protette."},
+    {q:"Quale leva psicologica NON è tipica di questi attacchi?",o:["Autorità","Urgenza","Noia","Paura"],c:2,s:"Autorità, urgenza, reciprocità e paura spingono ad agire in fretta. La noia non produce decisioni impulsive."},
+    {q:"Ti chiama un tecnico e chiede l'accesso remoto al PC aziendale. Cosa fai?",o:["Glielo dai, ha detto il nome del responsabile","Verifichi chiamando tu il contatto ufficiale","Glielo dai se conosce il tuo nome","Chiedi la sua email e procedi"],c:1,s:"Conoscere nomi interni è facile: bastano LinkedIn e il sito aziendale. La verifica su canale indipendente è l'unica difesa affidabile."},
+    {q:"Perché chi attacca studia i social della vittima?",o:["Per scegliere l'orario migliore","Per costruire una storia credibile","Per rubare le foto","Per aumentare i follower"],c:1,s:"Dettagli veri — colleghi, palestra, scuola, viaggi — rendono la finzione convincente e disattivano il sospetto."},
+    {q:"Chi sono le vittime tipiche del social engineering?",o:["Solo persone anziane","Solo chi non usa il computer","Persone normali colte in un momento di distrazione","Solo dipendenti pubblici"],c:2,s:"Il fattore decisivo non è l'ingenuità ma il contesto: fretta, stress, sovraccarico. Capita a chiunque."}]},
+
+  {livello:"Avanzato",titolo:"Privacy sui social network",
+   lezione:["Sui social ognuno costruisce, giorno dopo giorno, un archivio pubblico della propria vita: dove studia, dove si allena, chi sono gli amici, quando parte per le vacanze. Preso singolarmente ogni post è innocuo. Messi insieme, formano un profilo dettagliatissimo — esattamente il materiale che serve per un attacco di social engineering o un furto d'identità.",
+     "Ci sono informazioni che sembrano banali e invece sono chiavi vere: il nome del primo animale domestico, la scuola frequentata, il cognome da nubile della madre. Sono le classiche domande di sicurezza per recuperare un account. Se stanno nei tuoi post, hai consegnato la risposta prima ancora che qualcuno la chiedesse.",
+     "C'è poi il tempo reale: pubblicare storie mentre sei in vacanza comunica a chiunque che casa tua è vuota. E la permanenza: quello che pubblichi oggi può essere salvato con uno screenshot e riapparire tra cinque anni.",
+     "Non significa sparire dai social. Significa scegliere consapevolmente cosa mostrare, invece di condividere per abitudine."],
+   esempi:["Foto di carte d'imbarco con codici leggibili nel QR","Storie geolocalizzate che rivelano ogni giorno l'indirizzo di casa o della scuola","Profili falsi che copiano foto e nome di persone reali per truffarne i contatti"],
+   consigli:["Controlla ogni sei mesi le impostazioni privacy e chi vede i tuoi contenuti","Non pubblicare in tempo reale quando sei fuori casa: pubblica dopo","Chiediti: questa informazione aiuterebbe qualcuno a fingersi me?"],
+   quiz:[
+    {q:"Perché tanti post innocui insieme diventano un rischio?",o:["Occupano spazio","Compongono un profilo dettagliato sfruttabile","Rallentano l'app","Riducono i follower"],c:1,s:"È il principio dell'aggregazione: nessun dato è sensibile da solo, ma l'insieme ricostruisce abitudini, luoghi e relazioni."},
+    {q:"Quale informazione è più rischiosa da pubblicare?",o:["Il nome del tuo primo animale","Il tuo colore preferito","Un piatto che hai cucinato","Un film che ti è piaciuto"],c:0,s:"È una classica domanda di sicurezza per il recupero account: pubblicarla equivale a pubblicare parte di una password."},
+    {q:"Pubblicare storie durante una vacanza segnala che:",o:["Hai buon gusto","La tua casa è probabilmente vuota","Hai molti follower","Il telefono è aggiornato"],c:1,s:"È un'informazione operativa preziosa per i furti. Pubblicare al ritorno elimina il problema senza rinunciare al post."},
+    {q:"Perché è rischioso mostrare una carta d'imbarco?",o:["Il codice contiene dati del passeggero e della prenotazione","Rovina la foto","È vietato dalla compagnia","Consuma dati"],c:0,s:"Il codice può contenere nome, codice prenotazione e dettagli del volo: abbastanza per accedere alla pratica di viaggio."},
+    {q:"Cosa fa un profilo clone?",o:["Copia foto e nome per ingannare i tuoi contatti","Raddoppia le visualizzazioni","Salva i tuoi post","Verifica il tuo account"],c:0,s:"Sfrutta la fiducia già esistente nella tua rete: gli amici rispondono perché credono di parlare con te."}]},
+
+  {livello:"Avanzato",titolo:"Malware e virus",
+   lezione:["Malware è la parola che raccoglie tutti i programmi creati per danneggiare, spiare o sfruttare un dispositivo. «Virus» è solo una delle tante famiglie, anche se nel linguaggio comune si usa per indicare tutto.",
+     "Le categorie principali sono poche. Il ransomware blocca i tuoi file e chiede un riscatto: è oggi la minaccia più costosa per aziende e ospedali. Lo spyware resta invisibile e registra quello che fai, comprese le password che digiti. Il trojan si traveste da programma utile — un gioco, un crack, un convertitore gratuito — e apre una porta all'attaccante. Gli adware riempiono il dispositivo di pubblicità e raccolgono dati.",
+     "Il malware entra quasi sempre da tre porte: allegati aperti senza pensarci, software scaricato da siti non ufficiali, dispositivi USB trovati o prestati.",
+     "La difesa vera è banale ma quasi nessuno la applica: tenere tutto aggiornato e fare backup. Gli aggiornamenti chiudono le falle usate dagli attacchi, e un backup recente trasforma un ransomware da catastrofe a fastidio."],
+   esempi:["Attacchi ransomware che hanno bloccato ospedali e comuni italiani per giorni","Crack e app da siti pirata che installano trojan insieme al programma","Chiavette USB trovate o regalate che infettano il computer al collegamento"],
+   consigli:["Aggiorna sistema operativo e app: gli aggiornamenti sono patch di sicurezza","Scarica software solo da store e siti ufficiali","Fai backup regolari su disco esterno o cloud"],
+   quiz:[
+    {q:"Che cosa fa un ransomware?",o:["Mostra pubblicità","Cifra i file e chiede un riscatto","Rallenta la batteria","Cancella la cronologia"],c:1,s:"Rende i dati inaccessibili e monetizza il ricatto. È la ragione per cui il backup è la difesa più importante."},
+    {q:"Un trojan si riconosce perché:",o:["Si presenta come un programma utile","Appare come finestra rossa","Chiede sempre la password","Arriva solo via email"],c:0,s:"Il nome viene dal cavallo di Troia: il travestimento è tutta la sua tecnica, e per questo supera i controlli superficiali."},
+    {q:"Perché gli aggiornamenti sono importanti per la sicurezza?",o:["Aggiungono emoji","Chiudono falle già note e sfruttate","Aumentano lo spazio","Migliorano la fotocamera"],c:1,s:"La maggior parte degli attacchi usa vulnerabilità già corrette da tempo: colpiscono chi non ha aggiornato."},
+    {q:"Trovi una chiavetta USB per terra a scuola. Cosa fai?",o:["La colleghi per capire di chi è","Non la colleghi e la consegni","La colleghi solo su un PC vecchio","La formatti subito"],c:1,s:"È una tecnica di attacco documentata: la curiosità viene usata come vettore d'ingresso."},
+    {q:"Cosa rende un attacco ransomware molto meno grave?",o:["Un backup recente","Un monitor più grande","Una password lunga","Disattivare il Wi-Fi"],c:0,s:"Con i dati salvati altrove il ricatto perde forza: si ripristina e si va avanti, senza pagare."}]}
+];
+
+const SEGNALI = [
+  {nome:"Urgenza artificiale",peso:18,
+   spiega:"Il messaggio impone una scadenza per impedirti di verificare. Le comunicazioni autentiche non funzionano così.",
+   pattern:/\b(urgent[ei]|urgentemente|immediatamente|entro (?:24|48|12) ore|entro oggi|al più presto|scade|scadenza|ultim[ao] (?:possibilità|avviso|giorno)|tempestivamente|posti limitati)\b/gi},
+  {nome:"Richiesta di credenziali",peso:26,
+   spiega:"Nessun ente legittimo chiede password, OTP, PIN o codici di accesso via messaggio. È la richiesta più grave in assoluto.",
+   pattern:/\b(password|otp|codice (?:di )?(?:accesso|sicurezza|verifica|temporaneo)|pin|credenzial[ie]|spid|codice a 6 cifre)\b/gi},
+  {nome:"Minaccia o conseguenza negativa",peso:20,
+   spiega:"La paura di perdere l'accesso o subire una sanzione spinge ad agire senza ragionare. È la leva più usata in assoluto.",
+   pattern:/\b(sospes[oa]|sospensione|blocc(?:at[oa]|o|heremo)|disattivat[oa]|limitazione|sanzione|multa|denuncia|verrà (?:chiuso|sospeso)|accesso sospetto|attività sospetta|irregolarità)\b/gi},
+  {nome:"Richiesta di denaro o dati bancari",peso:24,
+   spiega:"Dati di pagamento richiesti dentro un messaggio non sollecitato sono il fine ultimo della truffa.",
+   pattern:/\b(iban|bonifico|carta di credito|numero della carta|cvv|coordinate bancarie|pagament[oi]|paga(?:re)?|ricarica|commissione|spese di spedizione|rimborso|accredito)\b/gi},
+  {nome:"Marchio noto imitato",peso:14,
+   spiega:"I marchi più riconoscibili sono i più imitati, perché generano fiducia immediata. Verifica sempre sul canale ufficiale.",
+   pattern:/\b(poste italiane|poste|bancoposta|agenzia delle entrate|inps|intesa|unicredit|nexi|postepay|amazon|dhl|brt|gls|netflix|paypal)\b/gi},
+  {nome:"Link sospetto",peso:22,
+   spiega:"Domini abbreviati, con trattini o con estensioni insolite servono a nascondere la vera destinazione del collegamento.",
+   pattern:/(https?:\/\/\S+|www\.\S+|bit\.ly\/\S*|tinyurl\S*|\b[a-z0-9-]+\.(?:xyz|top|icu|click|online|info|ru|tk|cc|link|shop)\b|\b[a-z]+-[a-z]+-?[a-z]*\.(?:com|net|org|it)\b)/gi},
+  {nome:"Premio o guadagno improvviso",peso:20,
+   spiega:"Vincite non richieste e guadagni facili sfruttano l'entusiasmo per abbassare le difese. Nessuno regala denaro a sconosciuti.",
+   pattern:/\b(hai vinto|congratulazioni|premio|omaggio|gratis|selezionat[oa]|fortunat[oa]|guadagn(?:o|i|are|ato)|profitt[oi]|opportunità unica|investimento sicuro|rendimento garantito|garantito)\b/gi},
+  {nome:"Pressione a non verificare",peso:16,
+   spiega:"Chi ti chiede di non parlarne o di rispondere solo lì sta cercando di isolarti da qualsiasi controllo esterno.",
+   pattern:/\b(non condivider[ea]|non dirlo a nessuno|riservat[oa]|rispondi (?:solo )?a questo (?:numero|messaggio)|clicca (?:qui|sul link)|completa il pagamento|conferma (?:i tuoi )?dati|verific[ahi](?: i| il)? (?:tuoi |tuo )?(?:dati|account))\b/gi}
+];
+
+const ESEMPI = [
+  {label:"SMS bancario", txt:"Gentile Cliente, abbiamo rilevato un accesso sospetto al suo conto. Il servizio verrà sospeso entro 24 ore. Verifica i tuoi dati urgentemente su http://intesa-verifica-clienti.top/login"},
+  {label:"Finto corriere", txt:"BRT: il tuo pacco è fermo in magazzino per spese di spedizione non pagate di 2,99 euro. Completa il pagamento entro oggi: bit.ly/brt-pagamento"},
+  {label:"Offerta di lavoro", txt:"Ciao! Selezioniamo persone per lavoro da casa, guadagno garantito 300 euro al giorno. Serve solo IBAN e documento. Non dirlo a nessuno, posti limitati. Rispondi solo a questo numero."},
+  {label:"Messaggio normale", txt:"Ciao Giulia, ti confermo l'appuntamento di giovedì alle 15 in segreteria per la consegna dei moduli. Se non riesci fammi sapere. Buona giornata!"}
+];
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function analizza(testo){
+  const trovati=[];const intervalli=[];
+  SEGNALI.forEach(sig=>{
+    sig.pattern.lastIndex=0;
+    let m;const occ=[];
+    while((m=sig.pattern.exec(testo))!==null){
+      if(!m[0]){sig.pattern.lastIndex++;continue;}
+      occ.push(m[0]);
+      intervalli.push({start:m.index,end:m.index+m[0].length});
+    }
+    if(occ.length)trovati.push({nome:sig.nome,peso:sig.peso,spiega:sig.spiega,occorrenze:[...new Set(occ)]});
+  });
+  let punteggio=0;
+  trovati.sort((a,b)=>b.peso-a.peso).forEach((s,i)=>{punteggio+=s.peso*(i===0?1:0.72);});
+  punteggio=Math.min(100,Math.round(punteggio));
+  intervalli.sort((a,b)=>a.start-b.start);
+  const merge=[];
+  intervalli.forEach(iv=>{
+    const last=merge[merge.length-1];
+    if(last&&iv.start<=last.end)last.end=Math.max(last.end,iv.end);
+    else merge.push({...iv});
+  });
+  let html="",cur=0;
+  merge.forEach(iv=>{
+    html+=escapeHtml(testo.slice(cur,iv.start))+"<mark>"+escapeHtml(testo.slice(iv.start,iv.end))+"</mark>";
+    cur=iv.end;
+  });
+  html+=escapeHtml(testo.slice(cur));
+  return {punteggio,trovati,html};
+}
+
+function livelloRischio(p){
+  if(p>=60)return{label:"Pericoloso",colore:"var(--alert)",desc:"Molti segnali di manipolazione: trattalo come una truffa.",azione:"Non cliccare nulla e non rispondere. Se il mittente dichiarato è un ente reale, contattalo tu dal canale ufficiale."};
+  if(p>=25)return{label:"Sospetto",colore:"var(--signal)",desc:"Alcuni segnali tipici delle truffe. Serve una verifica.",azione:"Prima di agire verifica su un canale diverso: apri tu l'app ufficiale o chiama il numero che conosci già."};
+  return{label:"Nessun segnale rilevante",colore:"var(--safe)",desc:"Il testo non contiene gli schemi di manipolazione più comuni.",azione:"Nessun segnale non significa sicurezza garantita: se il messaggio chiede comunque denaro o dati, verifica sempre."};
+}
+
+function mostraVerdetto(testo){
+  const v=document.getElementById('verdict');
+  if(!testo.trim()){
+    v.className="verdict show";
+    v.innerHTML='<div class="advice">Incolla un messaggio nel riquadro, oppure prova uno degli esempi qui sopra.</div>';
+    return;
+  }
+  const r=analizza(testo),lv=livelloRischio(r.punteggio);
+  document.getElementById('engineState').textContent="Analisi completata";
+  v.className="verdict show";
+  v.innerHTML=`
+    <div class="gauge">
+      <div class="gauge-ring" style="background:conic-gradient(${lv.colore} ${r.punteggio*3.6}deg, rgba(255,255,255,.09) 0)">
+        <div style="width:58px;height:58px;border-radius:50%;background:var(--ink-2);display:grid;place-items:center">${r.punteggio}</div>
+      </div>
+      <div class="gauge-label">
+        <strong style="color:${lv.colore}">${lv.label}</strong>
+        <span>${lv.desc}</span>
+      </div>
+    </div>
+    <div class="msg-render">${r.html}</div>
+    <div class="signals">
+      ${r.trovati.length?r.trovati.map(s=>`
+        <div class="sig"><div>
+          <span class="sig-name">${s.nome}</span>
+          <span class="sig-txt">${s.spiega}<br><span style="color:#7E8FA6">Rilevato: ${s.occorrenze.slice(0,4).map(escapeHtml).join(" · ")}</span></span>
+        </div></div>`).join('')
+      :'<div class="sig clean"><div><span class="sig-name">Nessuno schema noto rilevato</span><span class="sig-txt">Il testo non contiene le formule ricorrenti nei messaggi fraudolenti.</span></div></div>'}
+    </div>
+    <div class="advice"><strong>Cosa fare:</strong> ${lv.azione}</div>`;
+}
+
+document.getElementById('run').onclick=()=>mostraVerdetto(document.getElementById('msg').value);
+const samples=document.getElementById('samples');
+ESEMPI.forEach(e=>{
+  const b=document.createElement('button');
+  b.className='chip';b.textContent=e.label;
+  b.onclick=()=>{document.getElementById('msg').value=e.txt;mostraVerdetto(e.txt);};
+  samples.appendChild(b);
+});
+
+let modulo=0,indiceDomanda=0,punti=0,risposto=false;
+const completati=new Set();
+const nav=document.getElementById('nav'),bars=document.getElementById('bars');
+
+function buildNav(){
+  nav.innerHTML='';
+  [...new Set(MODULI.map(m=>m.livello))].forEach(liv=>{
+    const box=document.createElement('div');box.className='level';
+    box.innerHTML=`<span class="level-label mono">Livello ${liv}</span>`;
+    const ul=document.createElement('ul');
+    MODULI.forEach((m,i)=>{
+      if(m.livello!==liv)return;
+      const li=document.createElement('li');
+      const b=document.createElement('button');
+      b.className='navbtn'+(i===modulo?' active':'')+(completati.has(i)?' done':'');
+      b.innerHTML=`<span class="num">${String(i+1).padStart(2,'0')}</span><span>${m.titolo}</span>`;
+      b.onclick=()=>apri(i);
+      li.appendChild(b);ul.appendChild(li);
+    });
+    box.appendChild(ul);nav.appendChild(box);
+  });
+}
+function buildBars(){
+  bars.innerHTML='';
+  MODULI.forEach((_,i)=>{const d=document.createElement('div');d.className='bar'+(completati.has(i)?' on':'');bars.appendChild(d);});
+  document.getElementById('meterText').textContent=`${completati.size} di ${MODULI.length} moduli`;
+  document.getElementById('cert').classList.toggle('show',completati.size===MODULI.length);
+}
+function apri(i){
+  modulo=i;indiceDomanda=0;punti=0;risposto=false;
+  const m=MODULI[i];
+  document.getElementById('eyebrow').textContent=`Modulo ${String(i+1).padStart(2,'0')} · Livello ${m.livello}`;
+  document.getElementById('title').textContent=m.titolo;
+  document.getElementById('lesson').innerHTML=m.lezione.map(p=>`<p>${p}</p>`).join('');
+  document.getElementById('examples').innerHTML=m.esempi.map(e=>`<li>${e}</li>`).join('');
+  document.getElementById('tips').innerHTML=m.consigli.map(t=>`<li>${t}</li>`).join('');
+  buildNav();mostraDomanda();
+}
+function mostraDomanda(){
+  const m=MODULI[modulo],d=m.quiz[indiceDomanda];risposto=false;
+  document.getElementById('quiz').innerHTML=`<span class="eyebrow mono">Verifica</span>
+    <div class="qcount mono">Domanda ${indiceDomanda+1} di ${m.quiz.length}</div>
+    <p class="question">${d.q}</p><div id="opts"></div><div id="fb"></div>`;
+  const opts=document.getElementById('opts');
+  d.o.forEach((t,idx)=>{
+    const b=document.createElement('button');b.className='opt';b.textContent=t;
+    b.onclick=()=>rispondi(idx,b);opts.appendChild(b);
+  });
+}
+function rispondi(idx,btn){
+  if(risposto)return;risposto=true;
+  const m=MODULI[modulo],d=m.quiz[indiceDomanda];
+  const tutti=[...document.querySelectorAll('.opt')];
+  tutti.forEach(b=>b.disabled=true);
+  tutti[d.c].classList.add('right');
+  if(idx!==d.c)btn.classList.add('wrong');else punti++;
+  document.getElementById('fb').innerHTML=`
+    <div class="feedback"><strong>${idx===d.c?'Risposta corretta':'Risposta errata'}</strong>${d.s}</div>
+    <div class="row"><button class="btn" id="next">${indiceDomanda<m.quiz.length-1?'Domanda successiva':'Vedi risultato'}</button></div>`;
+  document.getElementById('next').onclick=avanti;
+  document.getElementById('next').focus();
+}
+function avanti(){
+  const m=MODULI[modulo];
+  if(indiceDomanda<m.quiz.length-1){indiceDomanda++;mostraDomanda();return;}
+  completati.add(modulo);buildNav();buildBars();
+  const prossimo=modulo<MODULI.length-1;
+  document.getElementById('quiz').innerHTML=`
+    <span class="eyebrow mono">Modulo completato</span>
+    <div class="score">${punti}/${m.quiz.length}</div>
+    <p class="question">${punti===m.quiz.length?'Tutte corrette. Modulo padroneggiato.':'Rivedi la spiegazione sopra e riprova quando vuoi.'}</p>
+    <div class="row">
+      <button class="btn ghost" id="rifai">Rifai il quiz</button>
+      ${prossimo?'<button class="btn" id="dopo">Modulo successivo</button>':''}
+    </div>`;
+  document.getElementById('rifai').onclick=()=>{indiceDomanda=0;punti=0;mostraDomanda();};
+  if(prossimo)document.getElementById('dopo').onclick=()=>{
+    apri(modulo+1);
+    document.getElementById('percorso').scrollIntoView({block:'start'});
+  };
+}
+buildBars();apri(0);
+</script>
+</body>
+</html>
